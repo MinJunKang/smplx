@@ -16,9 +16,10 @@
 
 from typing import Optional, Tuple
 
-import sys
-import os
+import json
+import pickle
 import os.path as osp
+from pathlib import Path
 
 import numpy as np
 from psbody.mesh import Mesh
@@ -42,16 +43,28 @@ class MeshFolder(Dataset):
         if exts is None:
             exts = ['.obj', '.ply']
 
-        self.data_folder = osp.expandvars(data_folder)
+        self.data_folder = Path(osp.expandvars(data_folder))
 
         logger.info(
-            f'Building mesh folder dataset for folder: {self.data_folder}')
-
-        self.data_paths = np.array([
-            osp.join(self.data_folder, fname)
-            for fname in os.listdir(self.data_folder)
-            if any(fname.endswith(ext) for ext in exts)
-        ])
+            f'Building mesh folder dataset for folder: {str(self.data_folder)}')
+        
+        self.data_paths, self.data_types = [], []
+        for fname in self.data_folder.glob("*"):
+            if fname.is_dir():
+                for subfname in fname.glob("*"):
+                    if subfname.suffixes[0] in exts:
+                        self.data_paths.append(str(subfname))
+                self.data_types.append('dir')
+            elif fname.is_file():
+                if fname.suffixes[0] in exts:
+                    self.data_paths.append(str(fname))
+                self.data_types.append('file')
+            else:
+                continue
+        self.data_paths = sorted(self.data_paths)
+        self.data_types = sorted(self.data_types)
+        
+        assert len(self.data_paths) > 0, f'No meshes found in {data_folder}'
         self.num_items = len(self.data_paths)
 
     def __len__(self) -> int:
@@ -59,6 +72,7 @@ class MeshFolder(Dataset):
 
     def __getitem__(self, index):
         mesh_path = self.data_paths[index]
+        path_type = self.data_types[index]
 
         # Load the mesh
         mesh = trimesh.load(mesh_path, process=False)
@@ -68,4 +82,5 @@ class MeshFolder(Dataset):
             'faces': np.asarray(mesh.faces, dtype=np.int32),
             'indices': index,
             'paths': mesh_path,
+            'paths_type': path_type,
         }

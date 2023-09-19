@@ -18,6 +18,7 @@ import os
 import os.path as osp
 import sys
 import pickle
+from pathlib import Path
 
 import numpy as np
 import open3d as o3d
@@ -81,22 +82,32 @@ def main() -> None:
         for key in batch:
             if torch.is_tensor(batch[key]):
                 batch[key] = batch[key].to(device=device)
-        var_dict = run_fitting(
+        var_dict, body_model_outputs = run_fitting(
             exp_cfg, batch, body_model, def_matrix, mask_ids)
         paths = batch['paths']
+        paths_type = batch['paths_type']
+        for key in var_dict:
+            var_dict[key] = var_dict[key].cpu().detach().numpy()
 
         for ii, path in enumerate(paths):
-            _, fname = osp.split(path)
+            path = Path(path)
+            fname = path.stem
+            if paths_type[ii] == 'dir':
+                output_folder_ = osp.join(output_folder, path.parent.stem)
+                os.makedirs(output_folder_, exist_ok=True)
+            else:
+                output_folder_ = output_folder
+            
+            np_var_dict = {}
+            for key in var_dict:
+                np_var_dict[key] = var_dict[key][ii]
 
-            output_path = osp.join(
-                output_folder, f'{osp.splitext(fname)[0]}.pkl')
+            output_path = osp.join(output_folder_, f'{fname}.pkl')
             with open(output_path, 'wb') as f:
-                pickle.dump(var_dict, f)
+                pickle.dump(np_var_dict, f)
 
-            output_path = osp.join(
-                output_folder, f'{osp.splitext(fname)[0]}.obj')
-            mesh = np_mesh_to_o3d(
-                var_dict['vertices'][ii], var_dict['faces'])
+            output_path = osp.join(output_folder_, f'{fname}.obj')
+            mesh = np_mesh_to_o3d(body_model_outputs['vertices'][ii], body_model_outputs['faces'])
             o3d.io.write_triangle_mesh(output_path, mesh)
 
 

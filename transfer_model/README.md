@@ -30,7 +30,7 @@ same poses. SMPL, SMPL+H and SMPL-X shape spaces are **NOT** compatible, since
 each model is the result of a different training process.
 A more detailed explanation on how we extract correspondences
 between the models and the loss function used to estimate the parameters can be
-found [here](./docs/transfer.md).
+found [here](./docs/transfer.md). We modified the code slightly from [here](https://github.com/vchoutas/smplx). Please refer to original code [here](https://github.com/vchoutas/smplx) for details.
 
 ## Requirements
 
@@ -61,7 +61,7 @@ following folder structure now:
 
 ```bash
 transfer_data
-├── meshes
+├── body_models
 │   ├── smpl
 │   ├── smplx
 ├── smpl2smplh_def_transfer.pkl

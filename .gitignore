@@ -29,6 +29,15 @@ wheels/
 *.egg
 MANIFEST
 
+# body_model
+transfer_data/body_models/
+transfer_data/*.pkl
+transfer_data/*.npy
+
+# thirdparties
+torch-trust-ncg/
+mesh/
+
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.

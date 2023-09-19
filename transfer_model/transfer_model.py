@@ -388,9 +388,10 @@ def run_fitting(
             # Simply pass the variable
             param_dict[key] = var
 
+    body_model_outputs = dict()
     body_model_output = body_model(
         return_full_pose=True, get_skin=True, **param_dict)
-    var_dict.update(body_model_output)
-    var_dict['faces'] = body_model.faces
+    body_model_outputs.update(body_model_output)
+    body_model_outputs['faces'] = body_model.faces
 
-    return var_dict
+    return var_dict, body_model_outputs

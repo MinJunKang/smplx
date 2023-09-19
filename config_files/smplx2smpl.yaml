@@ -1,9 +1,12 @@
 datasets:
     mesh_folder:
-        data_folder: 'meshes/smplx'
+        data_folder: '/workspace/humandata/CustomHumans/CustomHumans/smplx'
 deformation_transfer_path: 'transfer_data/smplx2smpl_deftrafo_setup.pkl'
 mask_ids_fname: ''
 summary_steps: 100
+output_folder: '/workspace/humandata/CustomHumans/CustomHumans/smpl'
+# output_folder: 'outputs'
+batch_size: 64
 
 edge_fitting:
     per_part: False
@@ -17,7 +20,7 @@ body_model:
     model_type: "smpl"
     gender: "neutral"
     ext: 'pkl'
-    folder: "transfer_data/body_models"
+    folder: "transfer_data/body_models"  # load template file of SMPL-X and SMPL
     use_compressed: False
     use_face_contour: True
     smpl:
